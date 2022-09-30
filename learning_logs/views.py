@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .models import Topic
+from .forms import TopicForm
 
 
 def index(request):
@@ -22,3 +23,18 @@ def topic(request, topic_id):
     context = {'topic': topic, 'entries': entries}
     return render(request, 'learning_logs/topic.html', context)
 
+def new_topic(request):
+    """Dodaj nowy temat"""
+    if request.method != 'POST':
+        #nie przekazano żadnych danych, należy utwożyć pusty formularz
+        form = TopicForm()
+    else:
+        #przekazano dane za pomocą żądania POST, należy je przetworzyć
+        form = TopicForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('learning_logs:topics')
+
+    #wyświetlanie pustego formularza
+    context = {'form': form}
+    return render(request, 'learning_logs/new_topic.html', context)
